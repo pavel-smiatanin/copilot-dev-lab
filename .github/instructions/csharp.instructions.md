@@ -11,7 +11,7 @@ applyTo: "**/*.cs"
 - Place `using` directives at the top of the file, outside the namespace and ordered in alphabetical order. Remove unused usings.
 - Use file-scoped namespace declarations (`namespace Foo.Bar;`) rather than block-scoped namespaces.
 - Enable nullable reference types in every file: `#nullable enable` (or set `<Nullable>enable</Nullable>` globally in the `.csproj`).
-- All projects should have option treat warnings as errors enabled.
+- Every `.csproj` file must include `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` in a `PropertyGroup`.
 
 ## Naming Conventions
 

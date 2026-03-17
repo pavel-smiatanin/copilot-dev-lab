@@ -6,7 +6,7 @@
 - Frontend delivery starts with MVP flows only (create link, unlock, stats), with UI polish deferred.
 
 ## Ordered Tasks
-1. [ ] Create backend skeleton (separate projects + solution wiring)
+1. [x] Create backend skeleton (separate projects + solution wiring)
 2. [ ] Create front-end skeleton (React + TypeScript + Vite MVP shell)
 3. [ ] Define database schema and indexes with FluentMigrations (`links`, `visits`, alias unique index, expiry index, analytics index, `row_version`)
 4. [ ] Configure core backend infrastructure (SQL Server EF Core, Redis `IDistributedCache`, MediatR, FluentValidation pipeline behavior, Serilog, health checks)

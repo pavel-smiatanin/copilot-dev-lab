@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "urlshortener.application.abstract": {
+        "type": "Project"
+      },
+      "urlshortener.shared": {
+        "type": "Project"
+      }
+    }
+  }
+}

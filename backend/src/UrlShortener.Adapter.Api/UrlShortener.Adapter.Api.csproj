@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\UrlShortener.Application\UrlShortener.Application.csproj" />
+    <ProjectReference Include="..\UrlShortener.Shared\UrlShortener.Shared.csproj" />
+    <ProjectReference Include="..\UrlShortener.Adapter.BackingServices\UrlShortener.Adapter.BackingServices.csproj" />
+  </ItemGroup>
+
+</Project>

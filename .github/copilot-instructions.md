@@ -115,6 +115,8 @@ Full C# coding standards (naming conventions, code style, async/await rules, DI,
 # Conversation Logging
 **MANDATORY**: All interactions with GitHub Copilot MUST be logged in files of the /docs/copilot-chat-log directory. Create the directory if it does not exist. Chat log file name template is yyyyMMdd.md, where yyyyMMdd is timestamp with current date (yyyy means 4 digits for year, MM - 2 digits for month number, dd - 2 digits for day of month). Chat log file name examples are 20260226.md, 20260318.md
 
+When writing logs: always append entries to the file for the current date (format `yyyyMMdd.md`). Do not create additional numbered files for the same date (for example, avoid creating `20260317-2.md` or `20260317-3.md`). If numbered/duplicate files already exist, merge their entries into the corresponding `yyyyMMdd.md` file and delete the duplicates.
+
 ## When to Log
 - **ALWAYS** after chat responses
 - **ALWAYS** after completing any task that modifies files

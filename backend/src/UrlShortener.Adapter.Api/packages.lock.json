@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "urlshortener.adapter.backingservices": {
+        "type": "Project",
+        "dependencies": {
+          "UrlShortener.Application.Abstract": "[1.0.0, )",
+          "UrlShortener.Shared": "[1.0.0, )"
+        }
+      },
+      "urlshortener.application": {
+        "type": "Project",
+        "dependencies": {
+          "UrlShortener.Application.Abstract": "[1.0.0, )",
+          "UrlShortener.Shared": "[1.0.0, )"
+        }
+      },
+      "urlshortener.application.abstract": {
+        "type": "Project"
+      },
+      "urlshortener.shared": {
+        "type": "Project"
+      }
+    }
+  }
+}
