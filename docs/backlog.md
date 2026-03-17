@@ -13,7 +13,7 @@
 5. [x] Implement link creation command and endpoint (`POST /api/v1/links`) with validation, Base62 alias generation, collision retries, and 409 conflict alternatives
 6. [x] Implement destination URL validation and SSRF protections (scheme + resolved host restrictions for private/loopback/link-local ranges)
 7. [x] Implement metadata prefetch during link creation (title/OpenGraph/favicon, 5s timeout, warning-only failure path)
-8. [ ] Implement redirect flow (`GET /{alias}`) with cache-first lookup, DB fallback, cache repopulation, expiry handling, and 302/404 behavior
+8. [x] Implement redirect flow (`GET /{alias}`) with cache-first lookup, DB fallback, cache repopulation, expiry handling, and 302/404 behavior
 9. [ ] Implement asynchronous visit recording via in-process background queue (fire-and-forget from redirect path)
 10. [ ] Implement password-protected link flow (`GET /{alias}` unlock response + `POST /api/v1/links/{alias}/unlock` with bcrypt verification, HMAC token issuance, token-based redirect completion)
 11. [ ] Implement rate limiting policies (create: per-IP hourly, unlock: per-IP-per-alias 15-minute window) including `Retry-After` on 429

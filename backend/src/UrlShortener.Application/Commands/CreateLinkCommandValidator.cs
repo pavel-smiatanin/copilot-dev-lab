@@ -2,7 +2,7 @@ using FluentValidation;
 using UrlShortener.Application.Abstract.Primary.Commands;
 using UrlShortener.Shared.Url;
 
-namespace UrlShortener.Application.Links.Commands;
+namespace UrlShortener.Application.Commands;
 
 public sealed class CreateLinkCommandValidator : AbstractValidator<CreateLinkCommand>
 {

@@ -3,7 +3,7 @@ using Moq;
 using Serilog;
 using UrlShortener.Application.Abstract.Primary.Commands;
 using UrlShortener.Application.Abstract.Secondary;
-using UrlShortener.Application.Links.Commands;
+using UrlShortener.Application.Commands;
 
 namespace UrlShortener.Application.Tests.Links.Commands;
 

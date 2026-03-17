@@ -7,7 +7,7 @@ using UrlShortener.Application.Abstract.Primary.Exceptions;
 using UrlShortener.Application.Abstract.Secondary;
 using UrlShortener.Shared.ShortId;
 
-namespace UrlShortener.Application.Links.Commands;
+namespace UrlShortener.Application.Commands;
 
 public sealed class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, CreateLinkResult>
 {
