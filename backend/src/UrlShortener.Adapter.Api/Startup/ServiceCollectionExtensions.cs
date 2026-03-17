@@ -2,22 +2,25 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.Adapter.BackingServices.Persistence;
+using UrlShortener.Application;
 using UrlShortener.Application.Abstract.Secondary;
 using UrlShortener.Shared.MediatR;
 
-namespace UrlShortener.Adapter.Worker.Startup;
+namespace UrlShortener.Adapter.Api.Startup;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        });
+        services.AddSingleton(TimeProvider.System);
 
-        services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+        services
+            .AddMediatR(cfg =>
+                {
+                    cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
+                    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+                })
+            .AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
 
         return services;
     }

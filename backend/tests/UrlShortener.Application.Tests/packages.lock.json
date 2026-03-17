@@ -63,6 +63,11 @@
         "resolved": "3.1.5",
         "contentHash": "tKi7dSTwP4m5m9eXPM2Ime4Kn7xNf4x4zT9sdLO/G4hZVnQCRiMTWoSZqI/pYTVeI27oPPqHBKYI/DjJ9GsYgA=="
       },
+      "BCrypt.Net-Next": {
+        "type": "Transitive",
+        "resolved": "4.0.3",
+        "contentHash": "W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA=="
+      },
       "Castle.Core": {
         "type": "Transitive",
         "resolved": "5.1.1",
@@ -426,6 +431,11 @@
         "type": "Transitive",
         "resolved": "4.3.0",
         "contentHash": "VB5cn/7OzUfzdnC8tqAIMQciVLiq2epm2NrAm1E9OjNRyG4lVhfR61SMcLizejzQP8R8Uf/0l5qOIbUEi+RdEg=="
+      },
+      "Serilog": {
+        "type": "Transitive",
+        "resolved": "4.2.0",
+        "contentHash": "gmoWVOvKgbME8TYR+gwMf7osROiWAURterc6Rt2dQyX7wtjZYpqFiA/pY6ztjGQKKV62GGCyOcmtP1UKMHgSmA=="
       },
       "System.AppContext": {
         "type": "Transitive",
@@ -1271,8 +1281,10 @@
       "urlshortener.application": {
         "type": "Project",
         "dependencies": {
+          "BCrypt.Net-Next": "[4.0.3, )",
           "FluentValidation": "[12.1.1, )",
           "MediatR": "[14.1.0, )",
+          "Serilog": "[4.2.0, )",
           "UrlShortener.Application.Abstract": "[1.0.0, )",
           "UrlShortener.Shared": "[1.0.0, )"
         }
@@ -1280,6 +1292,7 @@
       "urlshortener.application.abstract": {
         "type": "Project",
         "dependencies": {
+          "MediatR": "[14.1.0, )",
           "Microsoft.EntityFrameworkCore": "[8.0.0, )"
         }
       },

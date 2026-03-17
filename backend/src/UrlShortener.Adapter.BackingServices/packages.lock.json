@@ -420,6 +420,7 @@
       "urlshortener.application.abstract": {
         "type": "Project",
         "dependencies": {
+          "MediatR": "[14.1.0, )",
           "Microsoft.EntityFrameworkCore": "[8.0.0, )"
         }
       },

@@ -116,6 +116,11 @@
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
+      "BCrypt.Net-Next": {
+        "type": "Transitive",
+        "resolved": "4.0.3",
+        "contentHash": "W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA=="
+      },
       "FluentValidation": {
         "type": "Transitive",
         "resolved": "12.1.1",
@@ -761,8 +766,10 @@
       "urlshortener.application": {
         "type": "Project",
         "dependencies": {
+          "BCrypt.Net-Next": "[4.0.3, )",
           "FluentValidation": "[12.1.1, )",
           "MediatR": "[14.1.0, )",
+          "Serilog": "[4.2.0, )",
           "UrlShortener.Application.Abstract": "[1.0.0, )",
           "UrlShortener.Shared": "[1.0.0, )"
         }
@@ -770,6 +777,7 @@
       "urlshortener.application.abstract": {
         "type": "Project",
         "dependencies": {
+          "MediatR": "[14.1.0, )",
           "Microsoft.EntityFrameworkCore": "[8.0.0, )"
         }
       },

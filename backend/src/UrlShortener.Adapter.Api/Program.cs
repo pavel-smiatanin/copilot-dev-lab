@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using UrlShortener.Adapter.Worker.Startup;
+using UrlShortener.Adapter.Api.Middleware;
+using UrlShortener.Adapter.Api.Startup;
 
 // Bootstrap logger for startup-time errors before full Serilog configuration loads
 Log.Logger = new LoggerConfiguration()
@@ -22,8 +23,10 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
-builder.Services.AddApplication();
-builder.Services.AddBackingServices(builder.Configuration);
+builder.Services.AddApplication()
+    .AddBackingServices(builder.Configuration)
+    .AddExceptionHandler<GlobalExceptionHandler>()
+    .AddProblemDetails();
 
 builder.Services.AddControllers();
 
@@ -49,6 +52,7 @@ builder.Services
 var application = builder.Build();
 
 application
+    .UseExceptionHandler()
     .UseHttpsRedirection()
     .UseSwagger()
     .UseSwaggerUI(options =>
