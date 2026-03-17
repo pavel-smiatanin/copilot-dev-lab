@@ -368,3 +368,5 @@ deploy/tfe/config.tf
 
 *.feature.cs
 *.healthcheck
+
+localdev/.docker-data

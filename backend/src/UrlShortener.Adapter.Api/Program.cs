@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
 using Serilog;
-using UrlShortener.Adapter.BackingServices;
 using UrlShortener.Adapter.Worker.Startup;
-using UrlShortener.Application;
 
 // Bootstrap logger for startup-time errors before full Serilog configuration loads
 Log.Logger = new LoggerConfiguration()
@@ -28,6 +27,17 @@ builder.Services.AddBackingServices(builder.Configuration);
 
 builder.Services.AddControllers();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "URL Shortener API",
+        Version = "v1",
+        Description = "A lightweight URL shortener REST API."
+    });
+});
+
 string sqlConnection = builder.Configuration.GetConnectionString("DefaultConnection")!;
 string redisConnection = builder.Configuration.GetConnectionString("Redis")!;
 
@@ -40,6 +50,12 @@ var application = builder.Build();
 
 application
     .UseHttpsRedirection()
+    .UseSwagger()
+    .UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "URL Shortener API v1");
+            options.RoutePrefix = "swagger";
+        })   
     .UseSerilogRequestLogging()
     .UseAuthorization();
 

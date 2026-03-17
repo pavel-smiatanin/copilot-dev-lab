@@ -13,6 +13,32 @@ applyTo: "**/*.cs"
 - Enable nullable reference types in every file: `#nullable enable` (or set `<Nullable>enable</Nullable>` globally in the `.csproj`).
 - Every `.csproj` file must include `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` in a `PropertyGroup`.
 
+## Directory.Build.props
+
+A shared `Directory.Build.props` at `backend/` applies to all projects in the solution:
+
+```xml
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
+```
+
+Key implications:
+- **Do not** repeat `<TargetFramework>`, `<ImplicitUsings>`, `<Nullable>`, or `<TreatWarningsAsErrors>` in individual `.csproj` files — they are inherited globally.
+- **`RestorePackagesWithLockFile=true`**: After adding or updating any `<PackageReference>`, run `dotnet restore` to regenerate the `packages.lock.json` file. Commit the updated lock file alongside the `.csproj` change.
+- A second `Directory.Build.props` at `backend/tests/` inherits the root props and adds test-specific packages and settings (xUnit, FluentAssertions, Moq, AutoFixture, coverlet).
+
 ## Naming Conventions
 
 | Symbol | Convention | Example |

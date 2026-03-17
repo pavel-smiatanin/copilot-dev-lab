@@ -59,6 +59,8 @@ UrlShortener.sln
     UrlShortener.Shared.Tests/  # Unit tests for shared utilities and extensions (if necessary)
 ```
 
+**/backend/localdev** folder contains powershell scripts to help local development and application launch, docker-compose.yaml file to run application dependencies.
+
 ### API Conventions
 - All routes versioned under `/api/v1/`
 - Allowed HTTP status codes: **200, 201, 204, 400, 404, 409, 429, 500**
@@ -115,7 +117,7 @@ Full C# coding standards (naming conventions, code style, async/await rules, DI,
 # Conversation Logging
 **MANDATORY**: All interactions with GitHub Copilot MUST be logged in files of the /docs/copilot-chat-log directory. Create the directory if it does not exist. Chat log file name template is yyyyMMdd.md, where yyyyMMdd is timestamp with current date (yyyy means 4 digits for year, MM - 2 digits for month number, dd - 2 digits for day of month). Chat log file name examples are 20260226.md, 20260318.md
 
-When writing logs: always append entries to the file for the current date (format `yyyyMMdd.md`). Do not create additional numbered files for the same date (for example, avoid creating `20260317-2.md` or `20260317-3.md`). If numbered/duplicate files already exist, merge their entries into the corresponding `yyyyMMdd.md` file and delete the duplicates.
+When writing logs: always append entries to the end of the file for the current date (format `yyyyMMdd.md`). Do not create additional numbered files for the same date (for example, avoid creating `20260317-2.md` or `20260317-3.md`). If numbered/duplicate files already exist, merge their entries into the corresponding `yyyyMMdd.md` file and delete the duplicates.
 
 ## When to Log
 - **ALWAYS** after chat responses
@@ -127,7 +129,7 @@ When writing logs: always append entries to the file for the current date (forma
 
 ## Logging Format
 ```markdown
-## yyyy-MM-dd HH:mm:ss
+## HH:mm:ss
 
 ### Prompt
 [User's raw prompt/request]
@@ -137,7 +139,7 @@ When writing logs: always append entries to the file for the current date (forma
 
 -------------
 ```
-In the logging format HH:mm:ss is timestamp, yyyy-MM-dd is date as described above. HH - means 2 digits of hours, mm - 2 digits for minutes and ss - 2 digits for seconds. For example 02:53:15, 14:01:05, 23:59:59
+In the logging format 'HH:mm:ss' is time of interaction. 'HH' means 2 digits of hours, 'mm' - 2 digits for minutes and 'ss' - 2 digits for seconds. For example '02:53:15', '14:01:05', '23:59:59'
 
 ## What to Log
 - **Prompt**: Keep raw user prompts exactly as provided
