@@ -5,7 +5,8 @@ namespace UrlShortener.Application.Abstract.Secondary;
 
 public abstract class AppDbContext : DbContext
 {
-    protected AppDbContext(DbContextOptions<AppDbContext> options)
+    // Non-generic DbContextOptions allows concrete subclass to use DbContextOptions<TConcreteContext>
+    protected AppDbContext(DbContextOptions options)
         : base(options)
     { }
 

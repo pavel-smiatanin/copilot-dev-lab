@@ -137,6 +137,7 @@ When writing logs: always append entries to the file for the current date (forma
 
 -------------
 ```
+In the logging format HH:mm:ss is timestamp, yyyy-MM-dd is date as described above. HH - means 2 digits of hours, mm - 2 digits for minutes and ss - 2 digits for seconds. For example 02:53:15, 14:01:05, 23:59:59
 
 ## What to Log
 - **Prompt**: Keep raw user prompts exactly as provided

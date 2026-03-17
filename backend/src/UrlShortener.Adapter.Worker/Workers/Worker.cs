@@ -1,4 +1,4 @@
-namespace UrlShortener.Adapter.Worker;
+namespace UrlShortener.Adapter.Worker.Workers;
 
 public class Worker : BackgroundService
 {

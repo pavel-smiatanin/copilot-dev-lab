@@ -1,7 +1,30 @@
-using UrlShortener.Adapter.Worker;
+using Serilog;
+using UrlShortener.Adapter.Worker.Startup;
+using UrlShortener.Adapter.Worker.Workers;
 
-var builder = Host.CreateApplicationBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+{
+    Log.Fatal((Exception)eventArgs.ExceptionObject, "Unhandled exception");
+    Log.CloseAndFlush();
+};
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddSerilog((services, lc) =>
+    lc.ReadFrom.Configuration(builder.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext());
+
+builder.Services.AddBackingServices(builder.Configuration);
+
 builder.Services.AddHostedService<Worker>();
 
-var host = builder.Build();
+IHost host = builder.Build();
 host.Run();
+
+Log.CloseAndFlush();
+

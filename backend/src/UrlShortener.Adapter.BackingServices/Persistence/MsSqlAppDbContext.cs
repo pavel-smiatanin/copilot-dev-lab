@@ -5,7 +5,7 @@ namespace UrlShortener.Adapter.BackingServices.Persistence;
 
 public class MsSqlAppDbContext : AppDbContext
 {
-    public MsSqlAppDbContext(DbContextOptions<AppDbContext> options)
+    public MsSqlAppDbContext(DbContextOptions<MsSqlAppDbContext> options)
         : base(options)
     { }
 

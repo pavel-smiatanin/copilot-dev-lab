@@ -16,5 +16,6 @@ public sealed class Visit
 
     public string? CountryCode { get; set; }
 
-    public Link Link { get; set; }
+    // EF Core navigation property — populated by ORM after materialization
+    public Link Link { get; set; } = null!;
 }
