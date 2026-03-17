@@ -16,18 +16,22 @@ public sealed class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand
 
     private readonly AppDbContext _dbContext;
     private readonly TimeProvider _timeProvider;
+    private readonly ILinkMetadataFetcher _metadataFetcher;
     private readonly ILogger _logger;
 
     public CreateLinkCommandHandler(
         AppDbContext dbContext,
         TimeProvider timeProvider,
+        ILinkMetadataFetcher metadataFetcher,
         ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(timeProvider);
+        ArgumentNullException.ThrowIfNull(metadataFetcher);
         ArgumentNullException.ThrowIfNull(logger);
         _dbContext = dbContext;
         _timeProvider = timeProvider;
+        _metadataFetcher = metadataFetcher;
         _logger = logger;
     }
 
@@ -41,11 +45,17 @@ public sealed class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand
             ? BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12)
             : null;
 
+        LinkMetadata? metadata = await _metadataFetcher.FetchAsync(request.DestinationUrl, cancellationToken);
+
         Link link = new()
         {
             Id = Guid.NewGuid(),
             Alias = alias,
             DestinationUrl = request.DestinationUrl,
+            Title = metadata?.Title,
+            OgTitle = metadata?.OgTitle,
+            OgImageUrl = metadata?.OgImageUrl,
+            FaviconUrl = metadata?.FaviconUrl,
             PasswordHash = passwordHash,
             ExpiresAt = request.ExpiresAt,
             CreatedAt = _timeProvider.GetUtcNow(),

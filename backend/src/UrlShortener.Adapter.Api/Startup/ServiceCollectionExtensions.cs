@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using UrlShortener.Adapter.BackingServices.Metadata;
 using UrlShortener.Adapter.BackingServices.Persistence;
 using UrlShortener.Application;
 using UrlShortener.Application.Abstract.Secondary;
@@ -45,6 +46,19 @@ public static class ServiceCollectionExtensions
             options.Configuration = redisConnectionString;
             options.InstanceName = "UrlShortener:";
         });
+
+        services.AddTransient<SsrfProtectionHandler>();
+
+        services.AddHttpClient<LinkMetadataFetcher>(client =>
+            {
+                // Outer guard — the fetcher itself enforces a 5-second CancellationTokenSource timeout
+                client.Timeout = TimeSpan.FromSeconds(6);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("UrlShortener-MetadataFetcher/1.0");
+            })
+            .AddHttpMessageHandler<SsrfProtectionHandler>();
+
+        services.AddTransient<ILinkMetadataFetcher>(
+            sp => sp.GetRequiredService<LinkMetadataFetcher>());
 
         return services;
     }
