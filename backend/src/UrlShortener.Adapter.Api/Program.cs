@@ -4,6 +4,8 @@ using Serilog;
 using UrlShortener.Adapter.Api.Middleware;
 using UrlShortener.Adapter.Api.Startup;
 
+const string _defaultCorsPolicy = "DefaultCorsPolicy";
+
 // Bootstrap logger for startup-time errors before full Serilog configuration loads
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -27,6 +29,17 @@ builder.Services.AddApplication()
     .AddBackingServices(builder.Configuration)
     .AddExceptionHandler<GlobalExceptionHandler>()
     .AddProblemDetails();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(_defaultCorsPolicy,
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllers();
 
@@ -54,6 +67,7 @@ var application = builder.Build();
 application
     .UseExceptionHandler()
     .UseHttpsRedirection()
+    .UseCors(_defaultCorsPolicy)
     .UseSwagger()
     .UseSwaggerUI(options =>
         {

@@ -21,6 +21,6 @@
 13. [ ] Implement worker cleanup jobs (expired links + Redis eviction, orphaned visits, retention purge) with batching, schedule config, and exception resilience
 14. [ ] Implement global exception handling and API response mapping to allowed status codes (200, 201, 204, 400, 404, 409, 429, 500)
 15. [x] Build frontend MVP create-link flow (form, validation, conflict suggestions, short URL output, copy action)
-16. [ ] Build frontend MVP unlock and stats flows with React Query + typed Axios service layer and explicit loading/error/success states
+16. [x] Build frontend MVP unlock and stats flows with React Query + typed Axios service layer and explicit loading/error/success states
 17. [ ] Add automated tests (backend handlers/validators and frontend component/flow tests with Vitest + RTL)
 18. [ ] Final hardening and documentation sync (README setup steps, config defaults, SRS traceability check, minimal polish)
