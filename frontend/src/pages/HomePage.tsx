@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { createLink } from '../services/linksService';
-import type { ConflictAlternative, CreateLinkRequest, CreateLinkResponse } from '../types/linkTypes';
+import type { CreateLinkRequest, CreateLinkResponse, ValidationErrorResponse } from '../types/linkTypes';
+import { ALIAS_PATTERN, MIN_ALIAS_LENGTH } from '../utils/constants';
 import styles from './HomePage.module.css';
 
 interface FormState {
@@ -12,6 +14,11 @@ interface FormState {
   password: string;
 }
 
+interface FieldErrors {
+  destinationUrl?: string;
+  customAlias?: string;
+}
+
 const INITIAL_FORM: FormState = {
   destinationUrl: '',
   customAlias: '',
@@ -19,22 +26,59 @@ const INITIAL_FORM: FormState = {
   password: '',
 };
 
+function validateForm(form: FormState): FieldErrors {
+  const errors: FieldErrors = {};
+
+  if (!form.destinationUrl.trim()) {
+    errors.destinationUrl = 'Destination URL is required.';
+  } else {
+    try {
+      const url = new URL(form.destinationUrl.trim());
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        errors.destinationUrl = 'URL must use http or https scheme.';
+      }
+    } catch {
+      errors.destinationUrl = 'Please enter a valid URL (e.g. https://example.com).';
+    }
+  }
+
+  if (form.customAlias && !ALIAS_PATTERN.test(form.customAlias)) {
+    errors.customAlias = `Alias must be ${MIN_ALIAS_LENGTH}–50 characters and contain only letters, digits, hyphens, or underscores.`;
+  }
+
+  return errors;
+}
+
 export default function HomePage() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [result, setResult] = useState<CreateLinkResponse | null>(null);
   const [copied, setCopied] = useState(false);
-  const [conflictAlternatives, setConflictAlternatives] = useState<readonly ConflictAlternative[]>([]);
+  const [conflictSuggestions, setConflictSuggestions] = useState<readonly string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const mutation = useMutation<CreateLinkResponse, AxiosError, CreateLinkRequest>({
     mutationFn: createLink,
     onSuccess: (data) => {
       setResult(data);
-      setConflictAlternatives([]);
+      setConflictSuggestions([]);
+      setFieldErrors({});
     },
     onError: (error) => {
       if (error.response?.status === 409) {
-        const body = error.response.data as { alternatives?: ConflictAlternative[] };
-        setConflictAlternatives(body.alternatives ?? []);
+        const body = error.response.data as { suggestions?: string[] };
+        setConflictSuggestions(body.suggestions ?? []);
+      } else if (error.response?.status === 400) {
+        const body = error.response.data as ValidationErrorResponse | undefined;
+        if (body?.errors) {
+          const errors: FieldErrors = {};
+          for (const e of body.errors) {
+            const key = (e.field.charAt(0).toLowerCase() + e.field.slice(1)) as keyof FieldErrors;
+            if (key === 'destinationUrl' || key === 'customAlias') {
+              errors[key] = e.message;
+            }
+          }
+          setFieldErrors(errors);
+        }
       }
     },
   });
@@ -42,17 +86,28 @@ export default function HomePage() {
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    if (name === 'customAlias') {
+      setConflictSuggestions([]);
+    }
   }, []);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       setResult(null);
-      setConflictAlternatives([]);
+      setConflictSuggestions([]);
       setCopied(false);
 
+      const errors = validateForm(form);
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return;
+      }
+      setFieldErrors({});
+
       const request: CreateLinkRequest = {
-        destinationUrl: form.destinationUrl,
+        destinationUrl: form.destinationUrl.trim(),
         ...(form.customAlias ? { customAlias: form.customAlias } : {}),
         ...(form.expiresAt ? { expiresAt: new Date(form.expiresAt).toISOString() } : {}),
         ...(form.password ? { password: form.password } : {}),
@@ -72,7 +127,8 @@ export default function HomePage() {
 
   const handleAlternativeSelect = useCallback((alias: string) => {
     setForm((prev) => ({ ...prev, customAlias: alias }));
-    setConflictAlternatives([]);
+    setConflictSuggestions([]);
+    setFieldErrors((prev) => ({ ...prev, customAlias: undefined }));
   }, []);
 
   function renderContent() {
@@ -91,16 +147,22 @@ export default function HomePage() {
           {result.expiresAt && (
             <p className={styles.expiry}>Expires: {new Date(result.expiresAt).toLocaleString()}</p>
           )}
-          <button
-            className={styles.createAnotherButton}
-            onClick={() => {
-              setResult(null);
-              setForm(INITIAL_FORM);
-              setCopied(false);
-            }}
-          >
-            Create another link
-          </button>
+          <div className={styles.resultActions}>
+            <Link to={`/stats/${result.id}`} className={styles.statsLink}>
+              View stats
+            </Link>
+            <button
+              className={styles.createAnotherButton}
+              onClick={() => {
+                setResult(null);
+                setForm(INITIAL_FORM);
+                setCopied(false);
+                setFieldErrors({});
+              }}
+            >
+              Create another link
+            </button>
+          </div>
         </div>
       );
     }
@@ -109,7 +171,8 @@ export default function HomePage() {
   }
 
   const is409 = mutation.isError && mutation.error?.response?.status === 409;
-  const isGenericError = mutation.isError && !is409;
+  const is429 = mutation.isError && mutation.error?.response?.status === 429;
+  const is500 = mutation.isError && (mutation.error?.response?.status ?? 500) >= 500;
 
   return (
     <main className={styles.page}>
@@ -126,13 +189,18 @@ export default function HomePage() {
               id="destinationUrl"
               name="destinationUrl"
               type="url"
-              className={styles.input}
+              className={`${styles.input}${fieldErrors.destinationUrl ? ` ${styles.inputError}` : ''}`}
               value={form.destinationUrl}
               onChange={handleChange}
               placeholder="https://example.com/very/long/url"
-              required
               aria-required="true"
+              aria-describedby={fieldErrors.destinationUrl ? 'destinationUrl-error' : undefined}
             />
+            {fieldErrors.destinationUrl && (
+              <p id="destinationUrl-error" className={styles.fieldError} role="alert">
+                {fieldErrors.destinationUrl}
+              </p>
+            )}
           </div>
 
           <div className={styles.field}>
@@ -143,32 +211,42 @@ export default function HomePage() {
               id="customAlias"
               name="customAlias"
               type="text"
-              className={styles.input}
+              className={`${styles.input}${fieldErrors.customAlias || is409 ? ` ${styles.inputError}` : ''}`}
               value={form.customAlias}
               onChange={handleChange}
               placeholder="my-link"
               minLength={3}
               maxLength={50}
-              pattern="[a-zA-Z0-9_\-]{3,50}"
-              aria-describedby={is409 ? 'alias-error' : undefined}
+              aria-describedby={
+                fieldErrors.customAlias
+                  ? 'customAlias-error'
+                  : is409
+                    ? 'alias-conflict-error'
+                    : undefined
+              }
             />
-            {is409 && (
-              <p id="alias-error" className={styles.fieldError} role="alert">
+            {fieldErrors.customAlias && (
+              <p id="customAlias-error" className={styles.fieldError} role="alert">
+                {fieldErrors.customAlias}
+              </p>
+            )}
+            {is409 && !fieldErrors.customAlias && (
+              <p id="alias-conflict-error" className={styles.fieldError} role="alert">
                 This alias is already taken.
               </p>
             )}
-            {conflictAlternatives.length > 0 && (
+            {conflictSuggestions.length > 0 && (
               <div className={styles.alternatives}>
                 <p className={styles.alternativesLabel}>Suggestions:</p>
                 <ul className={styles.alternativesList}>
-                  {conflictAlternatives.map((alt) => (
-                    <li key={alt.alias}>
+                  {conflictSuggestions.map((alias) => (
+                    <li key={alias}>
                       <button
                         type="button"
                         className={styles.alternativeButton}
-                        onClick={() => handleAlternativeSelect(alt.alias)}
+                        onClick={() => handleAlternativeSelect(alias)}
                       >
-                        {alt.alias}
+                        {alias}
                       </button>
                     </li>
                   ))}
@@ -207,11 +285,14 @@ export default function HomePage() {
             />
           </div>
 
-          {isGenericError && (
+          {is429 && (
             <p className={styles.genericError} role="alert">
-              {mutation.error?.response?.status === 429
-                ? 'Too many requests. Please wait before trying again.'
-                : 'Something went wrong. Please try again.'}
+              Too many requests. Please wait before trying again.
+            </p>
+          )}
+          {is500 && (
+            <p className={styles.genericError} role="alert">
+              Something went wrong. Please try again.
             </p>
           )}
 

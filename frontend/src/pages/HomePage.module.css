@@ -181,3 +181,30 @@
 .createAnotherButton:hover {
   background: #eff6ff;
 }
+
+/* Input error state */
+.inputError {
+  border-color: #dc2626;
+}
+
+.inputError:focus {
+  outline-color: #dc2626;
+}
+
+/* Result actions row */
+.resultActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.statsLink {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-decoration: underline;
+}
+
+.statsLink:hover {
+  color: #374151;
+}

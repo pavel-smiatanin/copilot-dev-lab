@@ -11,22 +11,27 @@ export interface CreateLinkResponse {
   readonly id: string;
   readonly alias: string;
   readonly shortUrl: string;
-  readonly title: string | null;
-  readonly ogTitle: string | null;
-  readonly ogImageUrl: string | null;
-  readonly faviconUrl: string | null;
+  readonly destinationUrl: string;
+  readonly hasPassword: boolean;
   readonly expiresAt: string | null;
   readonly createdAt: string;
 }
 
-export interface ConflictAlternative {
-  readonly alias: string;
-  readonly shortUrl: string;
+// Backend 409 response: { message, conflictingAlias, suggestions: string[] }
+export interface CreateLinkConflictResponse {
+  readonly message: string;
+  readonly conflictingAlias: string;
+  readonly suggestions: readonly string[];
 }
 
-export interface CreateLinkConflictResponse {
-  readonly conflictingAlias: string;
-  readonly alternatives: readonly ConflictAlternative[];
+// Backend 400 response: { errors: [{ field, message }] }
+export interface ValidationError {
+  readonly field: string;
+  readonly message: string;
+}
+
+export interface ValidationErrorResponse {
+  readonly errors: readonly ValidationError[];
 }
 
 export interface UnlockRequest {
