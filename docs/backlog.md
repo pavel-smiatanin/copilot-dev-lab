@@ -15,7 +15,7 @@
 7. [x] Implement metadata prefetch during link creation (title/OpenGraph/favicon, 5s timeout, warning-only failure path)
 8. [x] Implement redirect flow (`GET /{alias}`) with cache-first lookup, DB fallback, cache repopulation, expiry handling, and 302/404 behavior
 9. [ ] Implement asynchronous visit recording via in-process background queue (fire-and-forget from redirect path)
-10. [ ] Implement password-protected link flow (`GET /{alias}` unlock response + `POST /api/v1/links/{alias}/unlock` with bcrypt verification, HMAC token issuance, token-based redirect completion)
+10. [x] Implement password-protected link flow (`GET /{alias}` unlock response + `POST /api/v1/links/{alias}/unlock` with bcrypt verification, HMAC token issuance, token-based redirect completion)
 11. [ ] Implement rate limiting policies (create: per-IP hourly, unlock: per-IP-per-alias 15-minute window) including `Retry-After` on 429
 12. [ ] Implement stats endpoint (`GET /api/v1/links/{id}/stats`) with total visits, unique visitors (hashed IP), last-30-days series, and top referrers
 13. [ ] Implement worker cleanup jobs (expired links + Redis eviction, orphaned visits, retention purge) with batching, schedule config, and exception resilience

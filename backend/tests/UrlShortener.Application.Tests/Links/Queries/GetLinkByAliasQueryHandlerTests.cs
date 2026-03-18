@@ -32,9 +32,11 @@ public sealed class GetLinkByAliasQueryHandlerTests
         TimeProvider? timeProvider = null)
     {
         Mock<ILogger> loggerMock = new();
+        Mock<IUnlockTokenService> tokenServiceMock = new();
         return new GetLinkByAliasQueryHandler(
             dbContext,
             cacheMock.Object,
+            tokenServiceMock.Object,
             timeProvider ?? TimeProvider.System,
             loggerMock.Object);
     }
@@ -81,7 +83,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("abc123"),
+            new GetLinkByAliasQuery("abc123", null),
             CancellationToken.None);
 
         // Assert
@@ -103,7 +105,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("abc123"),
+            new GetLinkByAliasQuery("abc123", null),
             CancellationToken.None);
 
         // Assert
@@ -123,7 +125,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("abc123"),
+            new GetLinkByAliasQuery("abc123", null),
             CancellationToken.None);
 
         // Assert
@@ -156,7 +158,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("abc123"),
+            new GetLinkByAliasQuery("abc123", null),
             CancellationToken.None);
 
         // Assert — returns the cached value, not the DB value
@@ -180,7 +182,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("notfound"),
+            new GetLinkByAliasQuery("notfound", null),
             CancellationToken.None);
 
         // Assert
@@ -210,7 +212,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("myalias"),
+            new GetLinkByAliasQuery("myalias", null),
             CancellationToken.None);
 
         // Assert
@@ -241,7 +243,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("expired"),
+            new GetLinkByAliasQuery("expired", null),
             CancellationToken.None);
 
         // Assert
@@ -271,7 +273,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("locked"),
+            new GetLinkByAliasQuery("locked", null),
             CancellationToken.None);
 
         // Assert
@@ -299,7 +301,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
         GetLinkByAliasQueryHandler handler = CreateHandler(dbContext, cacheMock);
 
         // Act
-        await handler.Handle(new GetLinkByAliasQuery("populate"), CancellationToken.None);
+        await handler.Handle(new GetLinkByAliasQuery("populate", null), CancellationToken.None);
 
         // Assert — SetAsync was called to populate the cache
         cacheMock.Verify(
@@ -333,7 +335,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
         GetLinkByAliasQueryHandler handler = CreateHandler(dbContext, cacheMock);
 
         // Act
-        await handler.Handle(new GetLinkByAliasQuery("expiredlink"), CancellationToken.None);
+        await handler.Handle(new GetLinkByAliasQuery("expiredlink", null), CancellationToken.None);
 
         // Assert — SetAsync was NOT called because the link is expired
         cacheMock.Verify(
@@ -373,7 +375,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("fallback"),
+            new GetLinkByAliasQuery("fallback", null),
             CancellationToken.None);
 
         // Assert — DB fallback succeeded
@@ -410,7 +412,7 @@ public sealed class GetLinkByAliasQueryHandlerTests
 
         // Act — should not throw even if cache write fails
         GetLinkByAliasResult result = await handler.Handle(
-            new GetLinkByAliasQuery("writefail"),
+            new GetLinkByAliasQuery("writefail", null),
             CancellationToken.None);
 
         // Assert

@@ -2,9 +2,9 @@ using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
-using Serilog;
 using UrlShortener.Application.Abstract.Primary.Queries;
 using UrlShortener.Application.Abstract.Secondary;
+using ILogger = Serilog.ILogger;
 
 namespace UrlShortener.Application.Queries;
 
@@ -14,21 +14,25 @@ public sealed class GetLinkByAliasQueryHandler : IRequestHandler<GetLinkByAliasQ
 
     private readonly AppDbContext _dbContext;
     private readonly IDistributedCache _cache;
+    private readonly IUnlockTokenService _tokenService;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger _logger;
 
     public GetLinkByAliasQueryHandler(
         AppDbContext dbContext,
         IDistributedCache cache,
+        IUnlockTokenService tokenService,
         TimeProvider timeProvider,
         ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(tokenService);
         ArgumentNullException.ThrowIfNull(timeProvider);
         ArgumentNullException.ThrowIfNull(logger);
         _dbContext = dbContext;
         _cache = cache;
+        _tokenService = tokenService;
         _timeProvider = timeProvider;
         _logger = logger;
     }
@@ -44,7 +48,7 @@ public sealed class GetLinkByAliasQueryHandler : IRequestHandler<GetLinkByAliasQ
         if (cached is not null)
         {
             _logger.Debug("Cache hit for alias {Alias}", request.Alias);
-            return ResolveFromCachedData(cached);
+            return ResolveFromCachedData(request.Alias, request.Token, cached);
         }
 
         Abstract.Model.Link? link = await _dbContext.Links
@@ -58,10 +62,10 @@ public sealed class GetLinkByAliasQueryHandler : IRequestHandler<GetLinkByAliasQ
 
         await TryPopulateCacheAsync(cacheKey, link, cancellationToken);
 
-        return ResolveFromLink(link);
+        return ResolveFromLink(request.Alias, request.Token, link);
     }
 
-    private GetLinkByAliasResult ResolveFromCachedData(CachedLinkData cached)
+    private GetLinkByAliasResult ResolveFromCachedData(string alias, string? token, CachedLinkData cached)
     {
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
@@ -72,13 +76,18 @@ public sealed class GetLinkByAliasQueryHandler : IRequestHandler<GetLinkByAliasQ
 
         if (cached.HasPassword)
         {
+            if (token is not null && _tokenService.Validate(alias, token, now))
+            {
+                return new GetLinkByAliasResult.Redirect(cached.DestinationUrl);
+            }
+
             return new GetLinkByAliasResult.RequiresUnlock();
         }
 
         return new GetLinkByAliasResult.Redirect(cached.DestinationUrl);
     }
 
-    private GetLinkByAliasResult ResolveFromLink(Abstract.Model.Link link)
+    private GetLinkByAliasResult ResolveFromLink(string alias, string? token, Abstract.Model.Link link)
     {
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
@@ -89,6 +98,11 @@ public sealed class GetLinkByAliasQueryHandler : IRequestHandler<GetLinkByAliasQ
 
         if (link.PasswordHash is not null)
         {
+            if (token is not null && _tokenService.Validate(alias, token, now))
+            {
+                return new GetLinkByAliasResult.Redirect(link.DestinationUrl);
+            }
+
             return new GetLinkByAliasResult.RequiresUnlock();
         }
 

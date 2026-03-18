@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UrlShortener.Adapter.Api.Model;
+using UrlShortener.Application.Abstract.Primary.Commands;
 
 namespace UrlShortener.Adapter.Api.Controllers;
 
@@ -41,5 +42,27 @@ public sealed class LinksController : ControllerBase
             result.HasPassword);
 
         return Created(location, response);
+    }
+
+    [HttpPost("{alias}/unlock")]
+    [ProducesResponseType(typeof(UnlockLinkResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UnlockLink(
+        string alias,
+        [FromBody] UnlockLinkRequest request,
+        CancellationToken cancellationToken)
+    {
+        UnlockLinkResult result = await _mediator.Send(
+            new UnlockLinkCommand(alias, request.Password),
+            cancellationToken);
+
+        return result switch
+        {
+            UnlockLinkResult.Success success => Ok(new UnlockLinkResponse(success.Token)),
+            UnlockLinkResult.NotFound => NotFound(),
+            UnlockLinkResult.InvalidPassword => BadRequest(new { message = "Invalid password." }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError)
+        };
     }
 }

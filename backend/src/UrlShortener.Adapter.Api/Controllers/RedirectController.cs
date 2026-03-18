@@ -23,10 +23,11 @@ public sealed class RedirectController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ResolveAlias(
         string alias,
+        [FromQuery] string? token,
         CancellationToken cancellationToken)
     {
         GetLinkByAliasResult result = await _mediator.Send(
-            new GetLinkByAliasQuery(alias),
+            new GetLinkByAliasQuery(alias, token),
             cancellationToken);
 
         return result switch

@@ -1,8 +1,10 @@
+using System.Text;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.Adapter.BackingServices.Metadata;
 using UrlShortener.Adapter.BackingServices.Persistence;
+using UrlShortener.Adapter.BackingServices.Security;
 using UrlShortener.Application;
 using UrlShortener.Application.Abstract.Secondary;
 using UrlShortener.Shared.MediatR;
@@ -51,7 +53,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient<LinkMetadataFetcher>(client =>
             {
-                // Outer guard — the fetcher itself enforces a 5-second CancellationTokenSource timeout
+                // Outer guard ï¿½ the fetcher itself enforces a 5-second CancellationTokenSource timeout
                 client.Timeout = TimeSpan.FromSeconds(6);
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("UrlShortener-MetadataFetcher/1.0");
             })
@@ -59,6 +61,13 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<ILinkMetadataFetcher>(
             sp => sp.GetRequiredService<LinkMetadataFetcher>());
+
+        string hmacSecret = configuration["UnlockToken:HmacSecret"]
+            ?? throw new InvalidOperationException(
+                "Configuration value 'UnlockToken:HmacSecret' is not configured.");
+
+        services.AddSingleton<IUnlockTokenService>(
+            new HmacUnlockTokenService(Encoding.UTF8.GetBytes(hmacSecret)));
 
         return services;
     }
