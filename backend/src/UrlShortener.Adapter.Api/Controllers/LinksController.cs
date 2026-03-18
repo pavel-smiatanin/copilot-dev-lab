@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UrlShortener.Adapter.Api.Model;
+using UrlShortener.Application.Abstract.Model;
 using UrlShortener.Application.Abstract.Primary.Commands;
+using UrlShortener.Application.Abstract.Primary.Queries;
 
 namespace UrlShortener.Adapter.Api.Controllers;
 
@@ -65,4 +67,30 @@ public sealed class LinksController : ControllerBase
             _ => StatusCode(StatusCodes.Status500InternalServerError)
         };
     }
+
+    [HttpGet("{id:guid}/stats")]
+    [ProducesResponseType(typeof(GetLinkStatsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetStats(Guid id, CancellationToken cancellationToken)
+    {
+        GetLinkStatsResult result = await _mediator.Send(new GetLinkStatsQuery(id), cancellationToken);
+
+        return result switch
+        {
+            GetLinkStatsResult.Found found => Ok(MapToResponse(found.Stats)),
+            GetLinkStatsResult.NotFound => NotFound(),
+            _ => StatusCode(StatusCodes.Status500InternalServerError)
+        };
+    }
+
+    private static GetLinkStatsResponse MapToResponse(LinkStats stats) =>
+        new(
+            stats.TotalVisits,
+            stats.UniqueVisitors,
+            stats.VisitsByDay
+                .Select(v => new GetLinkStatsResponse.VisitsByDayEntry(v.Date, v.Count))
+                .ToList(),
+            stats.TopReferrers
+                .Select(r => new GetLinkStatsResponse.ReferrerEntry(r.Host, r.Count))
+                .ToList());
 }

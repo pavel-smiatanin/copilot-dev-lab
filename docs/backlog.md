@@ -17,7 +17,7 @@
 9. [ ] Implement asynchronous visit recording via in-process background queue (fire-and-forget from redirect path)
 10. [x] Implement password-protected link flow (`GET /{alias}` unlock response + `POST /api/v1/links/{alias}/unlock` with bcrypt verification, HMAC token issuance, token-based redirect completion)
 11. [ ] Implement rate limiting policies (create: per-IP hourly, unlock: per-IP-per-alias 15-minute window) including `Retry-After` on 429
-12. [ ] Implement stats endpoint (`GET /api/v1/links/{id}/stats`) with total visits, unique visitors (hashed IP), last-30-days series, and top referrers
+12. [x] Implement stats endpoint (`GET /api/v1/links/{id}/stats`) with total visits, unique visitors (hashed IP), last-30-days series, and top referrers
 13. [ ] Implement worker cleanup jobs (expired links + Redis eviction, orphaned visits, retention purge) with batching, schedule config, and exception resilience
 14. [ ] Implement global exception handling and API response mapping to allowed status codes (200, 201, 204, 400, 404, 409, 429, 500)
 15. [x] Build frontend MVP create-link flow (form, validation, conflict suggestions, short URL output, copy action)
